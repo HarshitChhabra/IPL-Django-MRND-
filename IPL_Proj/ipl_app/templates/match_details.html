@@ -1,0 +1,157 @@
+{% extends '_base.html' %}
+
+{% block headBlock %}
+    <title>Match Details</title>
+{% endblock %}
+
+
+{% block outsideContainer %}
+        {% if deliveries %}
+        <center>
+        <h1><span style="margin-left:0;padding-right:150px; padding-left:30px; color:{{team1Fore}};background-image:linear-gradient(to right, {{team1Back}}, white);">{{ team1 }}</span> VS <span style="margin-right:0;padding-left:150px; padding-right:30px; color:{{team2Fore}};background-image:linear-gradient(to left, {{team2Back}}, white);;">{{ team2 }}</span></h1><br><br>
+        </center>
+        {% endif%}
+{% endblock %}
+{% block content %}
+
+    {% if deliveries %}
+
+
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Top 3 Batsmen:</h3><br>
+            {% for batsman in top3batsmen %}
+              {{batsman.batsman}} ({{batsman.batting_team}}) &nbsp;(Total: {{batsman.total}}) <br>
+            {% endfor %}
+          </div>
+        </div><br>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Top 3 Bowlers:</h3><br>
+            {% for bowler in top3bowlers %}
+              {{bowler.bowler}} ({{bowler.bowling_team}}) &nbsp;(Wickets: {{bowler.count}}) <br>
+            {% endfor %}
+          </div>
+        </div><br>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Team Stats</h3><br>
+            {% for stat in stats %}
+              <b>{{stat.batting_team}}</b><br>
+              &nbsp;&nbsp;&nbsp;Total: {{stat.total}}<br>
+              &nbsp;&nbsp;&nbsp;Extras: {{stat.extras}} <br>
+            {% endfor %}
+          </div>
+        </div><br><br>
+
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" onclick="changeTab(this)" id="inning1Tab">Inning 1</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="changeTab(this)" id="inning2Tab">Inning 2</a>
+          </li>
+        </ul>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Inning</th>
+              <th scope="col">Over</th>
+              <th scope="col">Ball</th>
+              <th scope="col">Wide Runs</th>
+              <th scope="col">Bye Runs</th>
+              <th scope="col">Leg-Bye Runs</th>
+              <th scope="col">No-Ball Runs</th>
+              <th scope="col">Penalty Runs</th>
+              <th scope="col">Batsman Runs</th>
+              <th scope="col">Extra Runs</th>
+              <th scope="col">Total Runs</th>
+              <th scope="col">Player Dismissed</th>
+              <th scope="col">Dismissal kind</th>
+              <th scope="col">Delivery Fielder</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+
+          </tbody>
+        </table>
+
+        <script>
+            var inning=1;
+
+            function scrollToOver(){
+                let line = 10;
+                let table = document.querySelector('table');
+                //var line = +document.querySelector('#line').value;
+                var rows = table.querySelectorAll('tr');
+
+                //rows.forEach(row => row.classList.remove('active'))
+                //rows[line].classList.add('active');
+                console.log(rows);
+                rows[line].scrollIntoView();
+            }
+
+            function changeTab(element){
+                if(element.innerHTML == 'Inning 1'){
+                    $("#inning1Tab").addClass('active');
+                    $("#inning2Tab").removeClass('active');
+                    inning=1;
+                    displayData();
+                }
+                else{
+                    $("#inning2Tab").addClass('active');
+                    $("#inning1Tab").removeClass('active');
+                    inning=2;
+                    displayData();
+                }
+            }
+
+            function displayData(){
+                var htmlCode = '';
+                var inp;
+                {% for delivery in deliveries %}
+                   inp = {{delivery.inning}};
+                   console.log(inp,inning);
+                   if(inp==inning){
+                   htmlCode += `<tr>
+                    <td>{{delivery.batting_team}}</td>
+                    <td>`+{{delivery.over}}+`</td>
+                    <td>`+{{delivery.ball}}+`</td>
+                    <td>`+{{delivery.wide_runs}}+`</td>
+                    <td>`+{{delivery.bye_runs}}+`</td>
+                    <td>`+{{delivery.legbye_runs}}+`</td>
+                    <td>`+{{delivery.noball_runs}}+`</td>
+                    <td>`+{{delivery.penalty_runs}}+`</td>
+                    <td>`+{{delivery.batsman_runs}}+`</td>
+                    <td>`+{{delivery.extra_runs}}+`</td>
+                    <td>`+{{delivery.total_runs}}+`</td>
+                    {% if delivery.player_dismissed %}
+                        <td>{{delivery.player_dismissed}}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                    {% if delivery.dismissal_kind %}
+                        <td>{{delivery.dismissal_kind}}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                    {% if delivery.fielder %}
+                        <td>{{delivery.fielder}}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                </tr>`
+                }
+            {% endfor %}
+            $("#tableBody").html(htmlCode);
+            //scrollToOver();
+            }
+
+            displayData();
+        </script>
+    {% endif %}
+{% endblock %}

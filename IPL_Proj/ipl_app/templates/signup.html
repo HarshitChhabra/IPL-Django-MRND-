@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+{% extends '_base.html' %}
+
+{% block headBlock %}
+    <title>
+        Sign Up
+    </title>
+    <style>
+        .centerAlign{
+            text-align:center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="columns is-centered" style="margin:auto;">
+            <div class="column is-half">
+                <h1 class="title centerAlign">Sign up</h1>
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if signUpForm.errors %}
+                        <article class="message is-danger">
+                          <div class="message-header">
+                            <p>Error</p>
+                          </div>
+                          <div class="message-body">
+                            {{ signUpForm.errors }}
+                          </div>
+                        </article>
+                    {% endif %}
+
+                    <div class="field">
+                        <div class="controller">
+                            {{signUpForm.first_name}}
+                        </div>
+                    </div><br>
+                    <div class="field">
+                        <div class="controller">
+                            {{signUpForm.last_name}}
+                        </div>
+                    </div><br>
+                    <div class="field">
+                        <div class="controller">
+                            {{signUpForm.username}}
+                        </div>
+                    </div><br>
+                    <div class="field">
+                        <div class="controller">
+                            {{signUpForm.password}}
+                        </div>
+                    </div><br>
+                    <div class="centerAlign">
+                        <button type="submit" class="btn btn-outline-success">Sign Up</button><br><br>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

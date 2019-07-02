@@ -1,0 +1,48 @@
+{% extends '_base.html' %}
+{% block headBlock %}
+    <title>Points</title>
+{% endblock %}
+
+{% block content %}
+        <h5>Select Season </h5>
+        <select class="custom-select col-sm-2" onchange="fetchMatches()" id="selectSeason">
+            {% for season in seasons %}
+                {% ifequal season.season|stringformat:"s" selected_year %}
+                    <option value="{{season.season}}" selected>{{season.season}}</option>
+                {% else %}
+                    <option value="{{season.season}}">{{season.season}}</option>
+                {% endifequal %}
+            {% endfor %}
+        </select><br><br>
+
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Team</th>
+              <th scope="col">Matches Played</th>
+              <th scope="col">Matches Won</th>
+              <th scope="col">Matches Lost</th>
+              <th scope="col">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for team,details in data.items %}
+                <tr>
+                    <td>{{team}}</td>
+                    <td>{{details.played}}</td>
+                    <td>{{details.won}}</td>
+                    <td>{{details.lost}}</td>
+                    <td>{{details.points}}</td>
+                </tr>
+              {% endfor %}
+          </tbody>
+        </table>
+
+        <script>
+
+            function fetchMatches(){
+                season = document.getElementById("selectSeason").value;
+                window.location.href='/season/'+season+'/points/';
+            }
+        </script>
+{% endblock %}

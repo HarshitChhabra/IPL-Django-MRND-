@@ -1,0 +1,67 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block headBlock %}
+    <title>IPL</title>
+{% endblock %}
+
+{% block content %}
+    <br><br>
+    <h3>Current Champions: </h3><br>
+    <div class="row">
+        <div class="col-4">
+            <img src="{% static 'images/mumbai_logo.png' %}" height="60%" width="100%">
+        </div>
+        <div class="col-2"></div>
+        <div class="col-5">
+            <br><br>
+            <div class="card">
+                <div class="card-header">Finals {{match.season.season}}</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{match.team1}} Vs {{match.team2}}</h5>
+                    <p class="card-text">{{match.winner}} won by
+                        {% if match.win_by_wickets == 0 %}
+                            {{ match.win_by_runs }} runs.
+
+                        {% else %}
+                            {{ match.win_by_wickets }} wickets.
+                        {% endif %}
+
+                    </p>
+                    <p class="card-text-right"><small class="text-muted">{{match.date}}</small></p>
+                </div>
+            </div><br><br>
+            <div class="row">
+                <div class="col">
+                    <button type="button" onclick="window.location.href = `{% url 'team_details' match.season.season match.winner match.season.season %}`" class="btn btn-outline-success">View the matches played by {{match.winner}}</button>
+                </div>
+                <div class="col">
+                    <button type="button" onclick="window.location.href = `{% url 'matches' match.season.season match.match_id %}`" class="btn btn-outline-success" >View all deliveries of finals</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <h4>{{match.season.season}} Points Table</h4>
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Team</th>
+          <th scope="col">Matches Played</th>
+          <th scope="col">Matches Won</th>
+          <th scope="col">Matches Lost</th>
+          <th scope="col">Points</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for team,details in points.items %}
+            <tr>
+                <td>{{team}}</td>
+                <td>{{details.played}}</td>
+                <td>{{details.won}}</td>
+                <td>{{details.lost}}</td>
+                <td>{{details.points}}</td>
+            </tr>
+          {% endfor %}
+      </tbody>
+    </table><br><br>
+{% endblock %}

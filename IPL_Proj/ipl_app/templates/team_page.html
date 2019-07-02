@@ -1,0 +1,94 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block headBlock %}
+    <title>Teams</title>
+    <link rel="stylesheet" href="{% static 'css/timeline.css' %}">
+    <style>
+        .hoverPtr:hover{
+            cursor:pointer;
+            box-shadow: 1px 2px 4px rgba(0, 0, 0,0.5);
+            border-color:cyan;
+        }
+
+        .card-columns {
+          @include media-breakpoint-only(lg) {
+            column-count: 2;
+          }
+          @include media-breakpoint-only(xl) {
+            column-count: 2;
+          }
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <h2>Teams in Season {{selected_year}}</h2>
+    <h5>Select Season </h5>
+    <select class="custom-select col-sm-2" onchange="window.location.href='/teams/'+this.value+'/'" id="selectSeason">
+        {% for season in seasons %}
+            {% ifequal season.season|stringformat:"s" selected_year %}
+                <option value="{{season.season}}" selected>{{season.season}}</option>
+            {% else %}
+                <option value="{{season.season}}">{{season.season}}</option>
+            {% endifequal %}
+        {% endfor %}
+    </select><br><br>
+    <h4>Teams:</h4><br>
+    <div class="card-columns">
+        {% for team in teams%}
+            <div class="card hoverPtr" onclick="window.location.href='/teams/{{selected_year}}/{{team}}/'">
+              <div class="card-body">
+                {{team}}
+              </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if years %}
+        <div class="row">
+            <div class="col-2">
+                <h4>Years</h4>
+                <ul class="timeline">
+                    {% for year in years %}
+                    <li>
+                        <a href='/teams/{{selected_year}}/{{team}}/{{year.0}}/'>{{year.0}}</a>
+                        <p>{{ year.1 }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-1"></div>
+            {% if matches %}
+            <div class="col-9">
+                <h4>Matches in {{selected_season}}:</h4><br>
+                <div id="teamDetails">
+                    <div class="card-columns">
+                        {% for match in matches%}
+                        <div class="card">
+                            <div class="card-header">{{match.1}}</div>
+                          <div class="card-body">
+                            <h5 class="card-title">{{match.0.team1}} Vs {{match.0.team2}}</h5>
+                            <p class="card-text">{{match.0.winner}} won by
+                                {% if match.0.win_by_wickets == 0 %}
+                                    {{ match.0.win_by_runs }} runs.
+
+                                {% else %}
+                                    {{ match.0.win_by_wickets }} wickets.
+                                {% endif %}
+                            </p>
+
+                            <a href="/seasons/{{selected_year}}/match/{{match.0.match_id}}/" class="btn btn-primary">View Details</a>
+                          </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

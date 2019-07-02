@@ -1,0 +1,144 @@
+{% extends '_base.html' %}
+
+{% block headBlock %}
+    <title>Seasons details</title>
+{% endblock %}
+
+{% block content %}
+    <h5>Select Season </h5>
+    <select class="custom-select col-sm-2" onchange="fetchMatches()" id="selectSeason">
+        {% for season in seasons %}
+            <option value="{{season.season}}">{{season.season}}</option>
+        {% endfor %}
+    </select>
+
+    <div id="matchDetails">
+
+
+    </div>
+
+    <nav aria-label="Page navigation example">
+          <ul class="pagination" id="pagination_id">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+          </ul>
+     </nav>
+
+    <script>
+        var currentPage = 1;
+        var data = [];
+        var season;
+        function fetchMatches(){
+            season = document.getElementById("selectSeason").value;
+            $.ajax({
+                url: "/seasons/"+season,
+                success : function(result){
+                    result = JSON.parse(result);
+                    data = result;
+                    currentPage = 1;
+                    loadPageData();
+                    console.log(result);
+                    let buttons = Math.ceil(result.length/8);
+                    $("#pagination_id").html(`<li class="page-item disabled" id="prevButton"><a class="page-link" onclick="previous()">Previous</a></li>`);
+                    for(let i=0;i<buttons;i++)
+                        $("#pagination_id").html($("#pagination_id").html()+`<li class="page-item"><a class="page-link" onclick="change(this)">`+(i+1)+`</a></li>`);
+                    $("#pagination_id").html($("#pagination_id").html()+`<li class="page-item" id="nextButton"><a class="page-link" onclick="next()">Next</a></li>`);                },
+            });
+        }
+
+        fetchMatches();
+
+        function change(element){
+            console.log(element.innerHTML);
+            currentPage = element.innerHTML;
+            if(currentPage == Math.ceil(data.length/8)){
+                $("#nextButton").addClass("disabled");
+            }
+            if(currentPage>=2)
+                $("#prevButton").removeClass("disabled");
+
+            if(currentPage == 1)
+                 $("#prevButton").addClass("disabled");
+            if(currentPage <= Math.ceil(data.length/8)-1)
+                $("#nextButton").removeClass("disabled");
+            loadPageData();
+
+        }
+
+        function next(){
+            currentPage+=1;
+            if(currentPage == Math.ceil(data.length/8)){
+                $("#nextButton").addClass("disabled");
+            }
+            if(currentPage==2)
+                $("#prevButton").removeClass("disabled");
+            loadPageData();
+        }
+
+        function previous(){
+            currentPage-=1;
+            if(currentPage == 1)
+                 $("#prevButton").addClass("disabled");
+            if(currentPage == Math.ceil(data.length/8)-1)
+                $("#nextButton").removeClass("disabled");
+
+            loadPageData();
+        }
+
+        function loadPageData(){
+        let result = data;
+        console.log(currentPage);
+        let htmlCode = `
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th scope="col">Match</th>
+                              <th scope="col">Venue</th>
+                              <th scope="col">Team 1</th>
+                              <th scope="col">Team 2</th>
+                              <th scope="col">Toss Winner</th>
+                              <th scope="col">Toss Decision</th>
+                              <th scope="col">Winner</th>
+                              <th scope="col">Player of the Match</th>
+                              <th scope="col">Details</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                    `;
+                    let minVal = currentPage*8;
+                    if(data.length<minVal)
+                        minVal=data.length;
+                    for(let i=(currentPage-1)*8;i<minVal;i++){
+                        console.log(currentPage,i);
+                        if(result[i]["fields"].win_by_runs == 0)
+                            matchWinner = result[i]["fields"].team2;
+                        else
+                            matchWinner = result[i]["fields"].team1;
+                        htmlCode+=`
+                            <tr>
+                                <td>`+(i+1)+`</td>
+                                <td>`+result[i]["fields"].city+`</td>
+                                <td>`+result[i]["fields"].team1+`</td>
+                                <td>`+result[i]["fields"].team2+`</td>
+                                <td>`+result[i]["fields"].toss_winner+`</td>
+                                <td>`+result[i]["fields"].toss_decision+`</td>
+                                <td>`+matchWinner+`</td>
+                                <td>`+result[i]["fields"].player_of_match+`</td>
+                                <td><button class="btn btn-outline-primary" onclick="window.location.href='/seasons/`+season+`/match/`+result[i]['fields'].match_id+`'">View Details</button></td>
+                            </tr>
+
+                        `;
+                    }
+                    htmlCode += `
+                        </tbody>
+                        </table>
+                    `;
+                    $("#matchDetails").html(htmlCode);
+                    //console.log(htmlCode);
+        }
+
+    </script>
+{% endblock %}
